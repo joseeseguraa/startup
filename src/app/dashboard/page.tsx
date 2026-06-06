@@ -5,10 +5,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Users, Briefcase, AlertCircle, CheckCircle2, ChevronRight } from 'lucide-react'
-import Link from 'next/link'
 import { NuevoClienteDialog } from '@/components/clientes/nuevo-cliente-dialog'
 import { NuevoCasoDialog } from '@/components/casos/nuevo-caso-dialog'
 import type { Cliente } from '@/types'
+import Link from 'next/link'
 
 export default async function DashboardPage() {
   const supabase = await createServerSupabaseClient()

@@ -8,6 +8,7 @@ import { NuevoCasoDialog } from '@/components/casos/nuevo-caso-dialog'
 import { BuscadorCasos } from '@/components/casos/buscador-casos'
 import { AccionesCaso } from '@/components/casos/acciones-caso'
 import type { Cliente, CasoConCliente } from '@/types'
+import Link from 'next/link'
 
 export default async function CasosPage({
   searchParams,
@@ -20,7 +21,7 @@ export default async function CasosPage({
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const serviceClient = createServiceSupabaseClient()
+  const serviceClient = await createServiceSupabaseClient()
   const { data: profile } = await serviceClient
     .from('profiles')
     .select('tenant_id')

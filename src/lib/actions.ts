@@ -11,7 +11,7 @@ async function getAuthContext() {
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   if (!user) return { error: `No autenticado: ${authError?.message ?? 'usuario nulo'}` }
 
-  const serviceClient = createServiceSupabaseClient()
+  const serviceClient = await createServiceSupabaseClient()
   const { data: profile, error: profileError } = await serviceClient
     .from('profiles')
     .select('tenant_id')
