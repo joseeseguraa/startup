@@ -72,8 +72,9 @@ export default async function ClienteDetallePage({
 
         {/* Datos del cliente */}
         <Card className="lg:col-span-1 h-fit">
-          <CardHeader className="pb-3">
+          <CardHeader className="pb-3 flex flex-row items-center justify-between">
             <CardTitle className="text-base">Datos del cliente</CardTitle>
+            <AccionesCliente cliente={cliente as Cliente} mode="edit-only" />
           </CardHeader>
           <CardContent className="space-y-3">
             {cliente.nif && (
