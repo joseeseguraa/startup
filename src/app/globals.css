@@ -131,3 +131,7 @@
     @apply font-heading;
   }
 }
+
+html, body {
+  overflow-x: hidden;
+}

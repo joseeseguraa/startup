@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -15,7 +15,7 @@ import { editarCliente, eliminarCliente } from '@/lib/actions'
 import { clienteSchema, type ClienteFormData } from '@/lib/validations'
 import type { Cliente } from '@/types'
 
-export function AccionesCliente({ cliente }: { cliente: Cliente }) {
+export function AccionesCliente({ cliente, mode }: { cliente: Cliente, mode?: 'edit-only' }) {
   const [editOpen, setEditOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -23,12 +23,12 @@ export function AccionesCliente({ cliente }: { cliente: Cliente }) {
 
   const { register, handleSubmit, formState: { errors }, reset } = useForm<ClienteFormData>({
     resolver: zodResolver(clienteSchema),
-    defaultValues: { 
-      nombre: cliente.nombre, 
-      nif: cliente.nif ?? '', 
-      telefono: cliente.telefono ?? '', 
-      email: cliente.email ?? '', 
-      notas: cliente.notas ?? '' 
+    defaultValues: {
+      nombre: cliente.nombre,
+      nif: cliente.nif ?? '',
+      telefono: cliente.telefono ?? '',
+      email: cliente.email ?? '',
+      notas: cliente.notas ?? ''
     }
   })
 
@@ -57,33 +57,33 @@ export function AccionesCliente({ cliente }: { cliente: Cliente }) {
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="opacity-0 group-hover:opacity-100 transition-opacity"
-          >
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-36">
-          <DropdownMenuItem asChild>
-            <Link
-              href={`/dashboard/clientes/${cliente.id}`}
-              className="cursor-pointer flex w-full items-center gap-2"
-            >
-              <Eye className="h-4 w-4" /> Ver Ficha
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setEditOpen(true)} className="cursor-pointer flex w-full items-center gap-2">
-            <Pencil className="h-4 w-4" /> Editar
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setDeleteOpen(true)} className="cursor-pointer flex w-full items-center gap-2 text-destructive focus:text-destructive">
-            <Trash2 className="h-4 w-4" /> Eliminar
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      {mode === 'edit-only' ? (
+        <Button variant="outline" size="sm" onClick={() => setEditOpen(true)} className="flex items-center gap-2">
+          <Pencil className="h-4 w-4" />
+          Editar datos
+        </Button>
+      ) : (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity">
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-36">
+            <DropdownMenuItem asChild>
+              <Link href={`/dashboard/clientes/${cliente.id}`} className="cursor-pointer flex w-full items-center gap-2">
+                <Eye className="h-4 w-4" /> Ver Ficha
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setEditOpen(true)} className="cursor-pointer flex w-full items-center gap-2">
+              <Pencil className="h-4 w-4" /> Editar
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setDeleteOpen(true)} className="cursor-pointer flex w-full items-center gap-2 text-destructive focus:text-destructive">
+              <Trash2 className="h-4 w-4" /> Eliminar
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
 
       <Dialog open={editOpen} onOpenChange={(open) => { setEditOpen(open); if (!open) { reset(); setError(null) } }}>
         <DialogContent className="sm:max-w-[480px]">

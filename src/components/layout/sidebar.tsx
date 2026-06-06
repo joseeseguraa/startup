@@ -15,7 +15,7 @@ export function Sidebar() {
   const pathname = usePathname()
 
   return (
-    <div className="flex h-full w-64 flex-col border-r bg-card/50 backdrop-blur-md">
+    <div className="flex h-full w-64 shrink-0 flex-col border-r bg-card/50 backdrop-blur-md">
       <div className="flex h-16 shrink-0 items-center px-6 border-b">
         <Scale className="h-6 w-6 text-primary mr-2" />
         <span className="font-semibold text-lg tracking-tight">LexManager</span>

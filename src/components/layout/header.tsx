@@ -3,7 +3,7 @@
 import { createClient } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { LogOut, Bell } from 'lucide-react'
+import { LogOut } from 'lucide-react'
 import { GlobalSearch } from '@/components/layout/global-search'
 
 export function Header() {
@@ -17,18 +17,15 @@ export function Header() {
   }
 
   return (
-    <header className="flex h-16 shrink-0 items-center justify-between border-b bg-background/95 backdrop-blur px-6 transition-all">
+    <header className="flex h-16 shrink-0 items-center justify-between border-b bg-background/95 backdrop-blur px-6">
       <div className="flex flex-1 items-center gap-4">
         <div className="relative w-full max-w-md hidden md:block">
           <GlobalSearch />
         </div>
       </div>
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground transition-all">
-          <Bell className="h-5 w-5" />
-        </Button>
-        <div className="h-8 w-px bg-border mx-2" />
-        <Button onClick={handleLogout} variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground transition-all">
+      <div className="flex items-center gap-3">
+        <div className="h-8 w-px bg-border" />
+        <Button onClick={handleLogout} variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
           <LogOut className="h-4 w-4 mr-2" />
           Salir
         </Button>

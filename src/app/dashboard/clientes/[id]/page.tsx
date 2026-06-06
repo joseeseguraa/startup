@@ -66,7 +66,6 @@ export default async function ClienteDetallePage({
           <h1 className="text-2xl font-semibold">{cliente.nombre}</h1>
           <p className="text-muted-foreground text-sm mt-0.5">Ficha del cliente</p>
         </div>
-        <AccionesCliente cliente={cliente as Cliente} mode="edit-only" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
