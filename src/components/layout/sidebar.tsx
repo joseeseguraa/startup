@@ -2,13 +2,14 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Scale, Users, Briefcase, Calendar, FileText, Settings } from 'lucide-react'
+import { Scale, Users, Briefcase, Calendar, FileText, Settings, FileSpreadsheet } from 'lucide-react'
 
 const navigation = [
   { name: 'Inicio', href: '/dashboard', icon: Scale },
   { name: 'Clientes', href: '/dashboard/clientes', icon: Users },
   { name: 'Casos', href: '/dashboard/casos', icon: Briefcase },
   { name: 'Calendario', href: '/dashboard/calendario', icon: Calendar },
+  { name: 'Facturación', href: '/dashboard/facturacion', icon: FileSpreadsheet },
 ]
 
 export function Sidebar() {
@@ -44,6 +45,24 @@ export function Sidebar() {
           )
         })}
       </nav>
+      <div className="p-4 border-t">
+        <Link
+          href="/dashboard/configuracion"
+          className={`group flex items-center px-3 py-2.5 text-sm font-medium rounded-md transition-all ${
+            pathname.startsWith('/dashboard/configuracion')
+              ? 'bg-primary/10 text-primary' 
+              : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+          }`}
+        >
+          <Settings
+            className={`mr-3 h-5 w-5 flex-shrink-0 transition-colors ${
+              pathname.startsWith('/dashboard/configuracion') ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'
+            }`}
+            aria-hidden="true"
+          />
+          Configuración
+        </Link>
+      </div>
     </div>
   )
 }

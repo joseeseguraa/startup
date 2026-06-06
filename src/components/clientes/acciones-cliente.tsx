@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { MoreHorizontal, Pencil, Trash2, Eye } from 'lucide-react'
 import Link from 'next/link'
+import { toast } from 'sonner'
 import { editarCliente, eliminarCliente } from '@/lib/actions'
 import { clienteSchema, type ClienteFormData } from '@/lib/validations'
 import type { Cliente } from '@/types'
@@ -38,8 +39,10 @@ export function AccionesCliente({ cliente, mode }: { cliente: Cliente, mode?: 'e
       const result = await editarCliente(cliente.id, data)
       if (result.error) {
         setError(result.error)
+        toast.error(result.error)
       } else {
         setEditOpen(false)
+        toast.success('Cliente guardado correctamente')
       }
     })
   }
@@ -49,8 +52,10 @@ export function AccionesCliente({ cliente, mode }: { cliente: Cliente, mode?: 'e
       const result = await eliminarCliente(cliente.id)
       if (result.error) {
         setError(result.error)
+        toast.error(result.error)
       } else {
         setDeleteOpen(false)
+        toast.success('Cliente eliminado')
       }
     })
   }
