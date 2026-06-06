@@ -1,7 +1,10 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -9,19 +12,32 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
 import { editarCaso, eliminarCaso } from '@/lib/actions'
+import { casoSchema, type CasoFormData } from '@/lib/validations'
 import type { Cliente, CasoConCliente } from '@/types'
 
 export function AccionesCaso({ caso, clientes }: { caso: CasoConCliente; clientes: Cliente[] }) {
-  const [menuOpen, setMenuOpen] = useState(false)
   const [editOpen, setEditOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
-  function handleEdit(formData: FormData) {
+  const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm<CasoFormData>({
+    resolver: zodResolver(casoSchema),
+    defaultValues: { 
+      asunto: caso.asunto, 
+      cliente_id: caso.cliente_id, 
+      estado: caso.estado, 
+      notas: caso.notas ?? '' 
+    }
+  })
+
+  const selectedEstado = watch('estado')
+  const selectedClienteId = watch('cliente_id')
+
+  function onSubmitEdit(data: CasoFormData) {
     setError(null)
     startTransition(async () => {
-      const result = await editarCaso(caso.id, formData)
+      const result = await editarCaso(caso.id, data)
       if (result.error) {
         setError(result.error)
       } else {
@@ -43,48 +59,42 @@ export function AccionesCaso({ caso, clientes }: { caso: CasoConCliente; cliente
 
   return (
     <>
-      <div className="relative">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="opacity-0 group-hover:opacity-100 transition-opacity"
-          onClick={() => setMenuOpen(!menuOpen)}
-        >
-          <MoreHorizontal className="h-4 w-4" />
-        </Button>
-        {menuOpen && (
-          <div className="absolute right-0 top-8 z-50 w-36 rounded-md border bg-popover p-1 shadow-md animate-in fade-in zoom-in-95">
-            <button
-              onClick={() => { setMenuOpen(false); setEditOpen(true) }}
-              className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm hover:bg-muted transition-colors"
-            >
-              <Pencil className="h-3.5 w-3.5" /> Editar
-            </button>
-            <button
-              onClick={() => { setMenuOpen(false); setDeleteOpen(true) }}
-              className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm text-destructive hover:bg-destructive/10 transition-colors"
-            >
-              <Trash2 className="h-3.5 w-3.5" /> Eliminar
-            </button>
-          </div>
-        )}
-      </div>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-36">
+          <DropdownMenuItem onClick={() => setEditOpen(true)} className="cursor-pointer flex w-full items-center gap-2">
+            <Pencil className="h-4 w-4" /> Editar
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setDeleteOpen(true)} className="cursor-pointer flex w-full items-center gap-2 text-destructive focus:text-destructive">
+            <Trash2 className="h-4 w-4" /> Eliminar
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
-      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+      <Dialog open={editOpen} onOpenChange={(open) => { setEditOpen(open); if (!open) { reset(); setError(null) } }}>
         <DialogContent className="sm:max-w-[480px]">
           <DialogHeader>
             <DialogTitle>Editar Caso</DialogTitle>
             <DialogDescription>Modifica los datos del expediente.</DialogDescription>
           </DialogHeader>
-          <form action={handleEdit} className="space-y-4 mt-2">
+          <form onSubmit={handleSubmit(onSubmitEdit)} className="space-y-4 mt-2">
             <div className="space-y-2">
               <Label htmlFor={`edit-asunto-${caso.id}`}>Asunto *</Label>
-              <Input id={`edit-asunto-${caso.id}`} name="asunto" defaultValue={caso.asunto} required />
+              <Input id={`edit-asunto-${caso.id}`} {...register('asunto')} />
+              {errors.asunto && <p className="text-xs text-destructive">{errors.asunto.message}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor={`edit-cliente-${caso.id}`}>Cliente</Label>
-              <Select name="cliente_id" defaultValue={caso.cliente_id}>
-                <SelectTrigger>
+              <Select value={selectedClienteId} onValueChange={(val) => setValue('cliente_id', val, { shouldValidate: true })}>
+                <SelectTrigger className={errors.cliente_id ? "border-destructive" : ""}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -95,10 +105,11 @@ export function AccionesCaso({ caso, clientes }: { caso: CasoConCliente; cliente
                   ))}
                 </SelectContent>
               </Select>
+              {errors.cliente_id && <p className="text-xs text-destructive">{errors.cliente_id.message}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor={`edit-estado-${caso.id}`}>Estado</Label>
-              <Select name="estado" defaultValue={caso.estado}>
+              <Select value={selectedEstado} onValueChange={(val: 'activo' | 'urgente' | 'cerrado') => setValue('estado', val, { shouldValidate: true })}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -108,10 +119,12 @@ export function AccionesCaso({ caso, clientes }: { caso: CasoConCliente; cliente
                   <SelectItem value="cerrado">Cerrado</SelectItem>
                 </SelectContent>
               </Select>
+              {errors.estado && <p className="text-xs text-destructive">{errors.estado.message}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor={`edit-notas-${caso.id}`}>Notas</Label>
-              <Textarea id={`edit-notas-${caso.id}`} name="notas" defaultValue={caso.notas ?? ''} rows={3} />
+              <Textarea id={`edit-notas-${caso.id}`} rows={3} {...register('notas')} />
+              {errors.notas && <p className="text-xs text-destructive">{errors.notas.message}</p>}
             </div>
             {error && <p className="text-sm text-destructive">{error}</p>}
             <div className="flex justify-end gap-3 pt-2">

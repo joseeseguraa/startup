@@ -3,8 +3,8 @@
 import { createClient } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { LogOut, Bell, Search } from 'lucide-react'
-import { Input } from '@/components/ui/input'
+import { LogOut, Bell } from 'lucide-react'
+import { GlobalSearch } from '@/components/layout/global-search'
 
 export function Header() {
   const router = useRouter()
@@ -20,12 +20,7 @@ export function Header() {
     <header className="flex h-16 shrink-0 items-center justify-between border-b bg-background/95 backdrop-blur px-6 transition-all">
       <div className="flex flex-1 items-center gap-4">
         <div className="relative w-full max-w-md hidden md:block">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="search"
-            placeholder="Buscar casos, clientes o documentos..."
-            className="w-full bg-muted/50 pl-9 border-none shadow-none focus-visible:ring-1 transition-all"
-          />
+          <GlobalSearch />
         </div>
       </div>
       <div className="flex items-center gap-4">

@@ -1,10 +1,11 @@
-import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { createServerSupabaseClient, createServiceSupabaseClient } from '@/lib/supabase-server'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { redirect } from 'next/navigation'
 import { NuevoClienteDialog } from '@/components/clientes/nuevo-cliente-dialog'
 import { BuscadorClientes } from '@/components/clientes/buscador-clientes'
 import { AccionesCliente } from '@/components/clientes/acciones-cliente'
+import Link from 'next/link'
 import type { Cliente } from '@/types'
 
 export default async function ClientesPage({
@@ -18,9 +19,17 @@ export default async function ClientesPage({
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  let query = supabase
+  const serviceClient = createServiceSupabaseClient()
+  const { data: profile } = await serviceClient
+    .from('profiles')
+    .select('tenant_id')
+    .eq('id', user.id)
+    .single()
+
+  let query = serviceClient
     .from('clientes')
     .select('*')
+    .eq('tenant_id', profile?.tenant_id)
     .order('created_at', { ascending: false })
 
   if (q && q.trim() !== '') {
@@ -68,8 +77,12 @@ export default async function ClientesPage({
                   </TableRow>
                 )}
                 {clientes?.map((cliente) => (
-                  <TableRow key={cliente.id} className="hover:bg-muted/50 transition-colors cursor-pointer group">
-                    <TableCell className="font-medium">{cliente.nombre}</TableCell>
+                  <TableRow key={cliente.id} className="hover:bg-muted/50 transition-colors group">
+                    <TableCell className="font-medium">
+                      <Link href={`/dashboard/clientes/${cliente.id}`} className="hover:underline flex items-center h-full w-full">
+                        {cliente.nombre}
+                      </Link>
+                    </TableCell>
                     <TableCell className="text-muted-foreground">{cliente.nif ?? '—'}</TableCell>
                     <TableCell className="text-muted-foreground">
                       <div className="flex flex-col">

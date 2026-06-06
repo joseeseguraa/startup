@@ -38,3 +38,34 @@ export type Caso = {
 export type CasoConCliente = Caso & {
   clientes: Pick<Cliente, 'nombre' | 'nif'>
 }
+
+export interface Evento {
+  id: string
+  tenant_id: string
+  caso_id?: string | null
+  titulo: string
+  fecha: string // ISO date string YYYY-MM-DD
+  tipo: 'juicio' | 'reunion' | 'vencimiento' | 'otro'
+  notas: string | null
+  created_at: string
+}
+
+export interface Actuacion {
+  id: string
+  tenant_id: string
+  caso_id: string
+  descripcion: string
+  fecha_creacion: string
+}
+
+export interface Documento {
+  id: string
+  tenant_id: string
+  cliente_id?: string | null
+  caso_id?: string | null
+  nombre_archivo: string
+  ruta_archivo: string
+  tamaño: number
+  tipo_mime: string
+  created_at: string
+}

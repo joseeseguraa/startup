@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { createServerSupabaseClient, createServiceSupabaseClient } from '@/lib/supabase-server'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
@@ -16,19 +16,23 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: profile } = await supabase
+  const serviceClient = createServiceSupabaseClient()
+  const { data: profile } = await serviceClient
     .from('profiles')
     .select('*, tenants(*)')
+    .eq('id', user.id)
     .single()
 
-  const { data: clientes } = await supabase
+  const { data: clientes } = await serviceClient
     .from('clientes')
     .select('*')
+    .eq('tenant_id', profile?.tenant_id)
     .order('created_at', { ascending: false })
 
-  const { data: casos } = await supabase
+  const { data: casos } = await serviceClient
     .from('casos')
     .select('*, clientes(nombre, nif)')
+    .eq('tenant_id', profile?.tenant_id)
     .order('created_at', { ascending: false })
 
   const activos = casos?.filter(c => c.estado === 'activo').length ?? 0
